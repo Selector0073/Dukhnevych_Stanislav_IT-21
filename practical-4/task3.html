@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Завдання 3 — Таймер</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body { background: #0f172a; }
+    .card { background: #1e293b; border: none; border-radius: 20px; box-shadow: 0 8px 32px rgba(0,0,0,.4); }
+    #display {
+      font-size: 5rem;
+      font-weight: 700;
+      letter-spacing: .1em;
+      color: #38bdf8;
+      font-variant-numeric: tabular-nums;
+      transition: color .3s;
+    }
+    #display.finished { color: #f87171; animation: pulse 1s infinite; }
+    @keyframes pulse { 0%,100%{ opacity:1 } 50%{ opacity:.4 } }
+    .btn-circle { width: 48px; height: 48px; border-radius: 50%; padding: 0; font-size: 1.2rem; }
+    label { color: #94a3b8; }
+    h4 { color: #f1f5f9; }
+    #finishMsg { color: #f87171; font-weight: 600; font-size: 1.1rem; }
+    .form-control {
+      background: #0f172a;
+      border-color: #334155;
+      color: #f1f5f9;
+    }
+    .form-control:focus { background: #0f172a; color: #f1f5f9; border-color: #38bdf8; box-shadow: none; }
+  </style>
+</head>
+<body class="d-flex justify-content-center align-items-center min-vh-100">
+  <div class="card p-4 text-center" style="width:100%;max-width:420px">
+    <h4 class="mb-4 fw-bold">Таймер зворотного відліку</h4>
+
+    <div class="mb-3">
+      <label class="form-label small">Час (секунди)</label>
+      <input id="secondsInput" type="number" class="form-control text-center" min="1" value="60">
+    </div>
+
+    <div id="display" class="my-3">00:00</div>
+    <p id="finishMsg" class="mb-3" style="min-height:1.6em"></p>
+
+    <div class="d-flex justify-content-center gap-2 flex-wrap mb-3">
+      <button id="btnStart"  class="btn btn-primary px-4">Старт</button>
+      <button id="btnPause"  class="btn btn-warning px-4" disabled>Пауза</button>
+    </div>
+
+    <div class="d-flex justify-content-center gap-3">
+      <button id="btnMinus"  class="btn btn-outline-danger  btn-circle">−10</button>
+      <button id="btnPlus"   class="btn btn-outline-success btn-circle">+10</button>
+    </div>
+    <p class="text-secondary small mt-2">±10 секунд</p>
+  </div>
+
+  <script>
+    const display      = document.getElementById('display');
+    const finishMsg    = document.getElementById('finishMsg');
+    const secondsInput = document.getElementById('secondsInput');
+    const btnStart     = document.getElementById('btnStart');
+    const btnPause     = document.getElementById('btnPause');
+
+    let remaining = 0;
+    let timer     = null;
+    let running   = false;
+
+    function format(sec) {
+      const m = String(Math.floor(sec / 60)).padStart(2, '0');
+      const s = String(sec % 60).padStart(2, '0');
+      return m + ':' + s;
+    }
+
+    function updateDisplay() {
+      display.textContent = format(remaining);
+    }
+
+    function finish() {
+      clearInterval(timer);
+      running = false;
+      timer   = null;
+      display.classList.add('finished');
+      finishMsg.textContent = 'Час вийшов!';
+      btnStart.disabled = false;
+      btnPause.disabled = true;
+    }
+
+    btnStart.addEventListener('click', () => {
+      if (running) return;
+
+      if (!timer) {
+        remaining = parseInt(secondsInput.value) || 0;
+        if (remaining <= 0) return;
+      }
+
+      display.classList.remove('finished');
+      finishMsg.textContent = '';
+      running = true;
+      btnStart.disabled = true;
+      btnPause.disabled = false;
+
+      timer = setInterval(() => {
+        remaining--;
+        updateDisplay();
+        if (remaining <= 0) finish();
+      }, 1000);
+
+      updateDisplay();
+    });
+
+    btnPause.addEventListener('click', () => {
+      if (!running) return;
+      clearInterval(timer);
+      timer   = null;
+      running = false;
+      btnStart.disabled = false;
+      btnPause.disabled = true;
+    });
+
+    document.getElementById('btnPlus').addEventListener('click', () => {
+      remaining = Math.max(0, remaining + 10);
+      updateDisplay();
+    });
+
+    document.getElementById('btnMinus').addEventListener('click', () => {
+      remaining = Math.max(0, remaining - 10);
+      updateDisplay();
+      if (remaining === 0 && running) finish();
+    });
+
+    updateDisplay();
+  </script>
+</body>
+</html>
