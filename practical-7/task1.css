@@ -1,0 +1,42 @@
+:root {
+    --bg:      #ffffff;
+    --surface: #f8f9fa;
+    --text:    #212529;
+    --accent:  #0d6efd;
+    --border:  #dee2e6;
+}
+
+*, *::before, *::after {
+    transition: background-color 0.4s ease, color 0.4s ease, border-color 0.4s ease;
+}
+
+body {
+    background-color: var(--bg);
+    color: var(--text);
+}
+
+.card {
+    background-color: var(--surface);
+    border-color: var(--border);
+}
+
+.card-header {
+    background-color: var(--accent);
+    color: #ffffff;
+    border-color: var(--border);
+}
+
+.theme-btn {
+    padding: 6px 18px;
+    border: 2px solid var(--border);
+    border-radius: 50px;
+    background: var(--surface);
+    color: var(--text);
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.theme-btn.active {
+    border-color: var(--accent);
+    color: var(--accent);
+}
