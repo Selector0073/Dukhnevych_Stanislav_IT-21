@@ -1,0 +1,111 @@
+PRAGMA foreign_keys = ON;
+
+
+-- Part 1
+
+
+CREATE TABLE students (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    first_name TEXT NOT NULL,
+    last_name TEXT NOT NULL,
+    group_name TEXT,
+    birth_date TEXT
+);
+
+-- 2. Таблиця оцінок (Видаляються разом зі студентом)
+CREATE TABLE grades (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    student_id INTEGER,
+    subject TEXT,
+    grade INTEGER,
+    FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE
+);
+
+-- 3. Таблиця стипендій (При видаленні студента поле стає NULL)
+CREATE TABLE scholarships (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    student_id INTEGER,
+    amount REAL,
+    type TEXT,
+    FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE SET NULL
+);
+
+-- 4. Таблиця відвідування (При видаленні студента поле стає NULL)
+CREATE TABLE attendance (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    student_id INTEGER,
+    date TEXT,
+    status TEXT CHECK(status IN ('present', 'absent', 'late')),
+    FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE SET NULL
+);
+
+
+-- Part 2
+
+
+-- Додаємо 5 студентів (Групи A1 та B2)
+INSERT INTO students (first_name, last_name, group_name, birth_date) VALUES 
+('Олексій', 'Даниленко', 'A1', '2005-03-12'),
+('Марія', 'Коваль', 'A1', '2004-11-25'),
+('Іван', 'Мельник', 'B2', '2005-07-10'),
+('Анна', 'Шевченко', 'B2', '2006-01-15'),
+('Дмитро', 'Ткачук', 'A1', '2005-09-30');
+
+-- Додаємо по 2 оцінки кожному
+INSERT INTO grades (student_id, subject, grade) VALUES 
+(1, 'Математика', 95), (1, 'Фізика', 88),
+(2, 'Математика', 90), (2, 'Фізика', 92),
+(3, 'Математика', 75), (3, 'Фізика', 80),
+(4, 'Математика', 98), (4, 'Фізика', 100),
+(5, 'Математика', 82), (5, 'Фізика', 85);
+
+-- Додаємо стипендії для 3 студентів
+INSERT INTO scholarships (student_id, amount, type) VALUES 
+(1, 2500.00, 'Академічна'),
+(2, 3000.00, 'Соціальна'),
+(4, 2500.00, 'Академічна');
+
+-- Додаємо по 2 записи відвідування кожному
+INSERT INTO attendance (student_id, date, status) VALUES 
+(1, '2026-05-01', 'present'), (1, '2026-05-02', 'present'),
+(2, '2026-05-01', 'present'), (2, '2026-05-02', 'late'),
+(3, '2026-05-01', 'absent'), (3, '2026-05-02', 'present'),
+(4, '2026-05-01', 'present'), (4, '2026-05-02', 'present'),
+(5, '2026-05-01', 'late'), (5, '2026-05-02', 'absent');
+
+
+-- Part 3
+
+
+-- Оновити прізвище одного з студентів
+UPDATE students SET last_name = 'Сидоренко' WHERE id = 3;
+
+-- Оновити оцінку в одному з предметів
+UPDATE grades SET grade = 100 WHERE student_id = 1 AND subject = 'Фізика';
+
+-- Видалити одного студента (наприклад, id=5)
+DELETE FROM students WHERE id = 5;
+
+-- ПЕРЕВІРКА:
+-- 1. Оцінки студента 5 мають бути видалені автоматично (CASCADE)
+SELECT * FROM grades WHERE student_id = 5; 
+
+-- 2. Записи про стипендії та відвідування мають залишитись, але student_id буде NULL
+SELECT * FROM scholarships WHERE student_id IS NULL;
+SELECT * FROM attendance WHERE student_id IS NULL;
+
+
+-- Part 4
+
+
+-- Виведення всіх студентів
+SELECT * FROM students;
+
+-- Виведення студентів, у яких група = 'A1'
+SELECT * FROM students WHERE group_name = 'A1';
+
+-- Студенти у порядку спадання по даті народження (від наймолодших до найстарших)
+SELECT * FROM students ORDER BY birth_date DESC;
+
+-- Студенти з групи 'A1' у порядку зростання імені
+SELECT * FROM students WHERE group_name = 'A1' ORDER BY first_name ASC;
